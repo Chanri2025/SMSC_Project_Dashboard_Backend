@@ -1,11 +1,10 @@
 from flask import Blueprint, request, jsonify
 from models.user import User
-from services.auth_service import hash_password, verify_password
 from database import db
 
 auth_bp = Blueprint('auth', __name__)
 
-# Register a new user
+# ✅ Register a new user (Plain Text Password)
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -18,7 +17,7 @@ def register():
     new_user = User(
         full_name=data['full_name'],
         email=data['email'],
-        password_hash=hash_password(data['password'])  # Store hashed password
+        password_hash=data['password']  # ❌ Storing password in plain text (Not recommended for security)
     )
 
     db.session.add(new_user)
@@ -26,13 +25,18 @@ def register():
 
     return jsonify({'message': 'User registered successfully', 'user_id': new_user.id}), 201
 
-# Login a user
+
+# ✅ Login a user (Plain Text Password Check)
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
 
-    if user and verify_password(user.password_hash, data['password']):
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # ✅ Compare passwords as plain text
+    if user.password_hash == data['password']:
         return jsonify({
             'message': 'Login successful',
             'user_id': user.id,
@@ -42,7 +46,8 @@ def login():
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
-# Get user profile
+
+# ✅ Get user profile
 @auth_bp.route('/profile/<int:user_id>', methods=['GET'])
 def get_profile(user_id):
     user = User.query.get(user_id)
@@ -56,7 +61,8 @@ def get_profile(user_id):
         'email': user.email
     })
 
-# Update user profile
+
+# ✅ Update user profile
 @auth_bp.route('/profile/update/<int:user_id>', methods=['PUT'])
 def update_profile(user_id):
     user = User.query.get(user_id)
@@ -78,7 +84,8 @@ def update_profile(user_id):
     db.session.commit()
     return jsonify({'message': 'Profile updated successfully'})
 
-# Change password
+
+# ✅ Change password (Plain Text)
 @auth_bp.route('/profile/change-password/<int:user_id>', methods=['PUT'])
 def change_password(user_id):
     user = User.query.get(user_id)
@@ -88,15 +95,17 @@ def change_password(user_id):
 
     data = request.get_json()
 
-    if not verify_password(user.password_hash, data['old_password']):
+    # ❌ Directly compare plain text passwords
+    if user.password_hash != data['old_password']:
         return jsonify({'message': 'Old password is incorrect'}), 401
 
-    user.password_hash = hash_password(data['new_password'])
+    user.password_hash = data['new_password']  # ❌ Updating password without hashing (Not Secure)
     db.session.commit()
 
     return jsonify({'message': 'Password updated successfully'})
 
-# Delete user account
+
+# ✅ Delete user account
 @auth_bp.route('/profile/delete/<int:user_id>', methods=['DELETE'])
 def delete_account(user_id):
     user = User.query.get(user_id)
