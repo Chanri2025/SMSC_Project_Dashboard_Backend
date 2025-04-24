@@ -19,7 +19,6 @@ def login():
     if user.password_hash == data['password']:  # Plaintext match (for dev only)
         return jsonify({
             'message': 'Login successful',
-            'user_id': user.id,
             'employee_id': user.employee_id,
             'full_name': user.full_name,
             'email': user.email,
@@ -27,4 +26,3 @@ def login():
         }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
-    

@@ -6,6 +6,7 @@ from datetime import datetime
 
 employee_bp = Blueprint('employee_bp', __name__)
 
+
 # ✅ Add a new employee
 @employee_bp.route('/add', methods=['POST'])
 def add_employee():
@@ -64,11 +65,13 @@ def add_employee():
     except Exception as e:
         return jsonify({'message': 'Error', 'error': str(e)}), 500
 
+
 # ✅ Get all employees
 @employee_bp.route('/all', methods=['GET'])
 def get_all_employees():
     employees = Employee.query.all()
     return jsonify([emp.to_dict() for emp in employees])
+
 
 # ✅ Search employees by name
 @employee_bp.route('/search')
@@ -77,27 +80,40 @@ def search_employee_by_name():
     results = Employee.query.filter(Employee.full_name.ilike(f"%{name}%")).all()
     return jsonify([emp.to_dict() for emp in results])
 
+
 # ✅ Get employee by custom employee_id (used throughout the app)
 from sqlalchemy import func
 
-@employee_bp.route('/profile/id/<employee_id>', methods=['GET'])
-def get_profile_by_employee_id(employee_id):
+
+@employee_bp.route('/profile', methods=['GET'])
+def get_profile_by_employee_id():
+    employee_id = request.args.get('employee_id')
+
+    if not employee_id:
+        return jsonify({'message': 'Missing employee_id'}), 400
+
     emp = Employee.query.filter(func.lower(Employee.employee_id) == employee_id.lower()).first()
 
     if not emp:
         return jsonify({'message': 'Employee not found'}), 404
-    return jsonify(emp.to_dict())
+
+    return jsonify(emp.to_dict()), 200
+
 
 # ✅ Update employee by custom employee_id
-@employee_bp.route('/update/by-code/<employee_id>', methods=['PUT'])
-def update_employee_by_code(employee_id):
+@employee_bp.route('/profile', methods=['PUT'])
+def update_employee_profile():
+    data = request.get_json()
+    employee_id = data.get('employee_id')
+
+    if not employee_id:
+        return jsonify({'message': 'employee_id is missing in request body'}), 400
+
     emp = Employee.query.filter_by(employee_id=employee_id).first()
     user = User.query.filter_by(employee_id=employee_id).first()
 
     if not emp or not user:
         return jsonify({'message': 'Employee or User not found'}), 404
-
-    data = request.get_json()
 
     try:
         # ✅ Update Employee table
@@ -105,7 +121,8 @@ def update_employee_by_code(employee_id):
         emp.email = data.get('email', emp.email)
         emp.phone = data.get('phone', emp.phone)
         emp.work_position = data.get('work_position', emp.work_position)
-        emp.date_of_birth = datetime.strptime(data['date_of_birth'], '%Y-%m-%d').date() if data.get('date_of_birth') else emp.date_of_birth
+        emp.date_of_birth = datetime.strptime(data['date_of_birth'], '%Y-%m-%d').date() if data.get(
+            'date_of_birth') else emp.date_of_birth
         emp.address = data.get('address', emp.address)
         emp.fathers_name = data.get('fathers_name', emp.fathers_name)
         emp.aadhar_no = data.get('aadhar_no', emp.aadhar_no)
