@@ -5,7 +5,7 @@ from models.employee import Employee
 from database import db
 from datetime import datetime
 
-user_bp = Blueprint('user', __name__, url_prefix='/user')
+user_bp = Blueprint('user', __name__)
 
 
 # ─── CREATE ────────────────────────────────────────────────────────────────
@@ -170,3 +170,27 @@ def change_password(user_id):
     db.session.commit()
 
     return jsonify({'message': 'Password updated successfully'}), 200
+
+
+# ─── FETCH ONE ─────────────────────────────────────────────────────────────
+@user_bp.route('/profile/<string:employee_id>', methods=['GET'])
+def get_user_by_employee_id(employee_id):
+    """
+    Fetch a User (and linked Employee) by their business key `employee_id`.
+    """
+    u = User.query.filter_by(employee_id=employee_id).first_or_404()
+    e = u.employee
+    return jsonify({
+        'id': u.id,
+        'employee_id': u.employee_id,
+        'full_name': u.full_name,
+        'email': u.email,
+        'role': u.role,
+        'phone': e.phone,
+        'work_position': e.work_position,
+        'date_of_birth': e.date_of_birth.strftime('%Y-%m-%d'),
+        'address': e.address,
+        'fathers_name': e.fathers_name,
+        'aadhar_no': e.aadhar_no,
+        'profile_photo': e.profile_photo
+    }), 200
