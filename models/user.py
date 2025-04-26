@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 
 class User(db.Model):
-    __tablename__ = 'user'  # ← your actual table name
+    __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.String(50), unique=True, nullable=False)
@@ -21,10 +21,18 @@ class User(db.Model):
         onupdate=datetime.utcnow
     )
 
-    # link to the single Employee row
+    # one-to-one link to Employee
     employee = relationship(
         "Employee",
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan"
+    )
+
+    # one-to-many link to AttendanceLog via the employee_id business key
+    attendance_logs = relationship(
+        "AttendanceLog",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        primaryjoin="User.employee_id==AttendanceLog.employee_id"
     )
