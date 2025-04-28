@@ -34,18 +34,19 @@ def create_work_entry():
 
     db.session.add(new_entry)
 
-    # ✅ Update project elapsed hours
+    # ✅ Update related project hours
     project = Project.query.filter_by(project_name=data['project_name']).first()
     if project:
-        # 1. Update total elapsed hours
         project.total_elapsed_hrs = (project.total_elapsed_hrs or 0) + data['hours_elapsed']
 
-        # 2. Update subpart elapsed hours
-        if project.project_subparts:
-            for subpart in project.project_subparts:
-                if subpart['project_subpart_name'] == data['project_subpart']:
-                    subpart['hours_elapsed'] = (subpart.get('hours_elapsed') or 0) + data['hours_elapsed']
-                    break
+        updated_subparts = []
+        for subpart in project.project_subparts:
+            if subpart['project_subpart_name'] == data['project_subpart']:
+                subpart['hours_elapsed'] = (subpart.get('hours_elapsed') or 0) + data['hours_elapsed']
+            updated_subparts.append(subpart)
+
+        project.project_subparts = updated_subparts
+    print(project)
 
     db.session.commit()
 
@@ -83,7 +84,6 @@ def update_work_entry(entry_id):
         return jsonify({'message': 'Work entry not found'}), 404
 
     data = request.get_json()
-
     old_hours = entry.hours_elapsed
 
     if 'hours_elapsed' in data:
@@ -105,20 +105,20 @@ def update_work_entry(entry_id):
 
     db.session.commit()
 
-    # ✅ After updating entry, adjust the related Project
+    # ✅ After updating the work entry, update the related project
     project = Project.query.filter_by(project_name=entry.project_name).first()
     if project:
         diff = (entry.hours_elapsed or 0) - (old_hours or 0)
         project.total_elapsed_hrs = (project.total_elapsed_hrs or 0) + diff
 
-        # Adjust subpart also
-        if project.project_subparts:
-            for subpart in project.project_subparts:
-                if subpart['project_subpart_name'] == entry.project_subpart:
-                    subpart['hours_elapsed'] = (subpart.get('hours_elapsed') or 0) + diff
-                    break
+        updated_subparts = []
+        for subpart in project.project_subparts:
+            if subpart['project_subpart_name'] == entry.project_subpart:
+                subpart['hours_elapsed'] = (subpart.get('hours_elapsed') or 0) + diff
+            updated_subparts.append(subpart)
 
-    db.session.commit()
+        project.project_subparts = updated_subparts
+        db.session.commit()
 
     return jsonify({'message': 'Work entry updated successfully'}), 200
 

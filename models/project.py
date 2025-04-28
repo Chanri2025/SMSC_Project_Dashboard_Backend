@@ -17,7 +17,3 @@ class Project(db.Model):
     client_id = Column(BigInteger, nullable=False, default=1)
     created_at = Column(db.DateTime, default=datetime.utcnow)
     updated_at = Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def add_update_to_subpart(self, subpart_name, field_updated, updated_value):
-        """ Optionally, you can add helper functions here later for updating subparts """
-        pass
