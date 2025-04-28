@@ -1229,310 +1229,421 @@
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <table id="515" parent="509" name="work_entries">
+    <table id="515" parent="509" name="work_day_entry">
       <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
-    <column id="516" parent="511" name="id">
+    <table id="516" parent="509" name="work_entries">
+      <DetailsLevel>3</DetailsLevel>
+      <Engine>InnoDB</Engine>
+      <CollationName>utf8mb4_unicode_ci</CollationName>
+    </table>
+    <column id="517" parent="511" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int(11)|0s</StoredType>
     </column>
-    <column id="517" parent="511" name="employee_id">
+    <column id="518" parent="511" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="518" parent="511" name="date">
+    <column id="519" parent="511" name="date">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="519" parent="511" name="in_time">
+    <column id="520" parent="511" name="in_time">
       <Position>4</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="520" parent="511" name="out_time">
+    <column id="521" parent="511" name="out_time">
       <Position>5</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <foreign-key id="521" parent="511" name="fk_attendance_employee">
+    <foreign-key id="522" parent="511" name="fk_attendance_employee">
       <ColNames>employee_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>employee_id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <index id="522" parent="511" name="PRIMARY">
+    <index id="523" parent="511" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="523" parent="511" name="fk_attendance_employee">
+    <index id="524" parent="511" name="fk_attendance_employee">
       <ColNames>employee_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="524" parent="511" name="PRIMARY">
+    <key id="525" parent="511" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="525" parent="512" name="id">
+    <column id="526" parent="512" name="id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int(11)|0s</StoredType>
     </column>
-    <column id="526" parent="512" name="phone">
+    <column id="527" parent="512" name="phone">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="527" parent="512" name="work_position">
+    <column id="528" parent="512" name="work_position">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(120)|0s</StoredType>
     </column>
-    <column id="528" parent="512" name="date_of_birth">
+    <column id="529" parent="512" name="date_of_birth">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="529" parent="512" name="profile_photo">
+    <column id="530" parent="512" name="profile_photo">
       <Position>5</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="530" parent="512" name="address">
+    <column id="531" parent="512" name="address">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="531" parent="512" name="fathers_name">
+    <column id="532" parent="512" name="fathers_name">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>varchar(120)|0s</StoredType>
     </column>
-    <column id="532" parent="512" name="aadhar_no">
+    <column id="533" parent="512" name="aadhar_no">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>varchar(12)|0s</StoredType>
     </column>
-    <foreign-key id="533" parent="512" name="fk_employees_users">
+    <foreign-key id="534" parent="512" name="fk_employees_users">
       <ColNames>id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <index id="534" parent="512" name="PRIMARY">
+    <index id="535" parent="512" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="535" parent="512" name="aadhar_no">
+    <index id="536" parent="512" name="aadhar_no">
       <ColNames>aadhar_no</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="536" parent="512" name="PRIMARY">
+    <key id="537" parent="512" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="537" parent="512" name="aadhar_no">
+    <key id="538" parent="512" name="aadhar_no">
       <UnderlyingIndexName>aadhar_no</UnderlyingIndexName>
     </key>
-    <check id="538" parent="513" name="assigned_empids">
-      <ColNames>assigned_empids</ColNames>
+    <check id="539" parent="513" name="assigned_ids">
+      <ColNames>assigned_ids</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <Predicate>json_valid(`assigned_empids`)</Predicate>
+      <Predicate>json_valid(`assigned_ids`)</Predicate>
     </check>
-    <check id="539" parent="513" name="update_logs">
-      <ColNames>update_logs</ColNames>
+    <check id="540" parent="513" name="project_subparts">
+      <ColNames>project_subparts</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <Predicate>json_valid(`update_logs`)</Predicate>
+      <Predicate>json_valid(`project_subparts`)</Predicate>
     </check>
-    <column id="540" parent="513" name="id">
-      <AutoIncrement>4</AutoIncrement>
+    <column id="541" parent="513" name="id">
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint(20) unsigned|0s</StoredType>
     </column>
-    <column id="541" parent="513" name="name">
+    <column id="542" parent="513" name="project_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="542" parent="513" name="description">
+    <column id="543" parent="513" name="project_subparts">
+      <DefaultExpression>json_array()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StoredType>text|0s</StoredType>
-    </column>
-    <column id="543" parent="513" name="employee_creator">
-      <NotNull>1</NotNull>
-      <Position>4</Position>
-      <StoredType>int(11)|0s</StoredType>
-    </column>
-    <column id="544" parent="513" name="assigned_empids">
-      <DefaultExpression>&apos;[]&apos;</DefaultExpression>
-      <Position>5</Position>
       <StoredType>longtext|0s</StoredType>
       <CollationName>utf8mb4_bin</CollationName>
     </column>
-    <column id="545" parent="513" name="update_logs">
-      <DefaultExpression>&apos;[]&apos;</DefaultExpression>
+    <column id="544" parent="513" name="total_estimate_hrs">
+      <DefaultExpression>0</DefaultExpression>
+      <Position>4</Position>
+      <StoredType>float|0s</StoredType>
+    </column>
+    <column id="545" parent="513" name="total_elapsed_hrs">
+      <DefaultExpression>0</DefaultExpression>
+      <Position>5</Position>
+      <StoredType>float|0s</StoredType>
+    </column>
+    <column id="546" parent="513" name="assigned_ids">
+      <DefaultExpression>json_array()</DefaultExpression>
+      <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>longtext|0s</StoredType>
       <CollationName>utf8mb4_bin</CollationName>
     </column>
-    <foreign-key id="546" parent="513" name="project_ibfk_1">
-      <ColNames>employee_creator</ColNames>
-      <OnDelete>cascade</OnDelete>
-      <RefColNames>id</RefColNames>
-      <RefTableName>user</RefTableName>
-    </foreign-key>
-    <index id="547" parent="513" name="PRIMARY">
+    <column id="547" parent="513" name="is_completed">
+      <DefaultExpression>0</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>tinyint(1)|0s</StoredType>
+    </column>
+    <column id="548" parent="513" name="created_by">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="549" parent="513" name="client_id">
+      <DefaultExpression>1</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="550" parent="513" name="created_at">
+      <DefaultExpression>current_timestamp()</DefaultExpression>
+      <Position>10</Position>
+      <StoredType>timestamp|0s</StoredType>
+    </column>
+    <column id="551" parent="513" name="updated_at">
+      <DefaultExpression>current_timestamp()</DefaultExpression>
+      <OnUpdate>current_timestamp()</OnUpdate>
+      <Position>11</Position>
+      <StoredType>timestamp|0s</StoredType>
+    </column>
+    <index id="552" parent="513" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="548" parent="513" name="employee_creator">
-      <ColNames>employee_creator</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="549" parent="513" name="PRIMARY">
+    <key id="553" parent="513" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="550" parent="514" name="id">
+    <column id="554" parent="514" name="id">
       <AutoIncrement>39</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int(11)|0s</StoredType>
     </column>
-    <column id="551" parent="514" name="full_name">
+    <column id="555" parent="514" name="full_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="552" parent="514" name="email">
+    <column id="556" parent="514" name="email">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="553" parent="514" name="password_hash">
+    <column id="557" parent="514" name="password_hash">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="554" parent="514" name="role">
+    <column id="558" parent="514" name="role">
       <DefaultExpression>&apos;Employee&apos;</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="555" parent="514" name="employee_id">
+    <column id="559" parent="514" name="employee_id">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="556" parent="514" name="created_at">
+    <column id="560" parent="514" name="created_at">
       <DefaultExpression>current_timestamp()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <column id="557" parent="514" name="updated_at">
+    <column id="561" parent="514" name="updated_at">
       <DefaultExpression>current_timestamp()</DefaultExpression>
       <NotNull>1</NotNull>
       <OnUpdate>current_timestamp()</OnUpdate>
       <Position>8</Position>
       <StoredType>timestamp|0s</StoredType>
     </column>
-    <index id="558" parent="514" name="PRIMARY">
+    <index id="562" parent="514" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="559" parent="514" name="email">
+    <index id="563" parent="514" name="email">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="560" parent="514" name="email_2">
+    <index id="564" parent="514" name="email_2">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="561" parent="514" name="employee_id">
+    <index id="565" parent="514" name="employee_id">
       <ColNames>employee_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="562" parent="514" name="employee_id_2">
+    <index id="566" parent="514" name="employee_id_2">
       <ColNames>employee_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="563" parent="514" name="PRIMARY">
+    <key id="567" parent="514" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="564" parent="514" name="email">
+    <key id="568" parent="514" name="email">
       <UnderlyingIndexName>email</UnderlyingIndexName>
     </key>
-    <key id="565" parent="514" name="email_2">
+    <key id="569" parent="514" name="email_2">
       <UnderlyingIndexName>email_2</UnderlyingIndexName>
     </key>
-    <key id="566" parent="514" name="employee_id">
+    <key id="570" parent="514" name="employee_id">
       <UnderlyingIndexName>employee_id</UnderlyingIndexName>
     </key>
-    <key id="567" parent="514" name="employee_id_2">
+    <key id="571" parent="514" name="employee_id_2">
       <UnderlyingIndexName>employee_id_2</UnderlyingIndexName>
     </key>
-    <column id="568" parent="515" name="id">
+    <check id="572" parent="515" name="hours_elapsed">
+      <ColNames>hours_elapsed</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Predicate>`hours_elapsed` &lt;= 8</Predicate>
+    </check>
+    <check id="573" parent="515" name="issues">
+      <ColNames>issues</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Predicate>json_valid(`issues`)</Predicate>
+    </check>
+    <column id="574" parent="515" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="575" parent="515" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="576" parent="515" name="work_date">
+      <DefaultExpression>curdate()</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>date|0s</StoredType>
+    </column>
+    <column id="577" parent="515" name="hours_elapsed">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>float|0s</StoredType>
+    </column>
+    <column id="578" parent="515" name="project_name">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="579" parent="515" name="project_subpart">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="580" parent="515" name="issues">
+      <DefaultExpression>json_array()</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>longtext|0s</StoredType>
+      <CollationName>utf8mb4_bin</CollationName>
+    </column>
+    <column id="581" parent="515" name="is_done">
+      <DefaultExpression>0</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>tinyint(1)|0s</StoredType>
+    </column>
+    <column id="582" parent="515" name="assigned_by">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="583" parent="515" name="assigned_to">
+      <NotNull>1</NotNull>
+      <Position>10</Position>
+      <StoredType>bigint(20) unsigned|0s</StoredType>
+    </column>
+    <column id="584" parent="515" name="created_at">
+      <DefaultExpression>current_timestamp()</DefaultExpression>
+      <Position>11</Position>
+      <StoredType>timestamp|0s</StoredType>
+    </column>
+    <column id="585" parent="515" name="updated_at">
+      <DefaultExpression>current_timestamp()</DefaultExpression>
+      <OnUpdate>current_timestamp()</OnUpdate>
+      <Position>12</Position>
+      <StoredType>timestamp|0s</StoredType>
+    </column>
+    <index id="586" parent="515" name="PRIMARY">
+      <ColNames>id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="587" parent="515" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
+    <column id="588" parent="516" name="id">
       <AutoIncrement>17</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int(11)|0s</StoredType>
     </column>
-    <column id="569" parent="515" name="employee_id">
+    <column id="589" parent="516" name="employee_id">
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="570" parent="515" name="full_name">
+    <column id="590" parent="516" name="full_name">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="571" parent="515" name="date">
+    <column id="591" parent="516" name="date">
       <Position>4</Position>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="572" parent="515" name="expected_date_of_delivery">
+    <column id="592" parent="516" name="expected_date_of_delivery">
       <Position>5</Position>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="573" parent="515" name="work_status">
+    <column id="593" parent="516" name="work_status">
       <Position>6</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="574" parent="515" name="tasks">
+    <column id="594" parent="516" name="tasks">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="575" parent="515" name="issue">
+    <column id="595" parent="516" name="issue">
       <Position>8</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <index id="576" parent="515" name="PRIMARY">
+    <index id="596" parent="516" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="577" parent="515" name="PRIMARY">
+    <key id="597" parent="516" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>

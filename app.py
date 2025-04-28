@@ -7,9 +7,10 @@ from database import db
 
 # Blueprints
 from routes.auth import auth_bp
-from routes.work_entry_routes import work_entry_bp
+from routes.work_entry_routes import work_day_entry_bp
 from routes.attendance_route import attendance_bp
 from routes.user_routes import user_bp
+from routes.project_routes import project_bp
 
 app = Flask(__name__)
 # ✅ CORS updated to allow React frontend access
@@ -22,9 +23,10 @@ bcrypt = Bcrypt(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(work_entry_bp, url_prefix='/work')
+app.register_blueprint(work_day_entry_bp, url_prefix='/work-day')
 app.register_blueprint(attendance_bp, url_prefix='/attendance')
 app.register_blueprint(user_bp, url_prefix='/users')
+app.register_blueprint(project_bp, url_prefix='/projects')
 
 
 @app.route("/")
