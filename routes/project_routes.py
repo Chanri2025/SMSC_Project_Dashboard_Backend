@@ -2,36 +2,38 @@ from flask import Blueprint, request, jsonify
 from models.project import Project
 from database import db
 from datetime import datetime
-from sqlalchemy import and_, cast, Date
+from sqlalchemy import cast, Date
 
 project_bp = Blueprint('project', __name__)
 
-# ✅ Create a new project (with employee_creator, update_logs, assigned employees)
+
+# ✅ Create a new project
 @project_bp.route('/create', methods=['POST'])
 def create_project():
     data = request.get_json()
 
-    # Validate required fields
-    required_fields = ['name', 'description', 'employee_creator']
+    required_fields = ['project_name', 'created_by']
     if not all(field in data for field in required_fields):
-        return jsonify({'error': 'Missing required fields (name, description, employee_creator)'}), 400
+        return jsonify({'error': 'Missing required fields (project_name, created_by)'}), 400
 
-    # Default assigned employees if not provided
-    assigned_empids = data.get('assigned_empids', [])
-    if not isinstance(assigned_empids, list):
-        return jsonify({'error': 'assigned_empids must be an array'}), 400
+    project_subparts = data.get('project_subparts', [])
+    assigned_ids = data.get('assigned_ids', [])
 
-    # Create new project with update logs
+    if not isinstance(project_subparts, list):
+        return jsonify({'error': 'project_subparts must be an array'}), 400
+
+    if not isinstance(assigned_ids, list):
+        return jsonify({'error': 'assigned_ids must be an array'}), 400
+
     new_project = Project(
-        name=data['name'].strip(),
-        description=data['description'].strip(),
-        employee_creator=data['employee_creator'],
-        assigned_empids=assigned_empids,
-        update_logs=[{
-            'updated_by': data['employee_creator'],
-            'message': 'Project created',
-            'timestamp': datetime.utcnow().isoformat()
-        }]
+        project_name=data['project_name'].strip(),
+        project_subparts=project_subparts,
+        total_estimate_hrs=data.get('total_estimate_hrs', 0),
+        total_elapsed_hrs=data.get('total_elapsed_hrs', 0),
+        assigned_ids=assigned_ids,
+        created_by=data['created_by'],
+        is_completed=data.get('is_completed', False),
+        client_id=data.get('client_id', 1)  # Optional, defaults to 1
     )
 
     db.session.add(new_project)
@@ -39,90 +41,93 @@ def create_project():
 
     return jsonify({
         'message': 'Project created successfully',
-        'project_id': new_project.id,
-        'assigned_empids': new_project.assigned_empids,
-        'update_logs': new_project.update_logs
+        'project_id': new_project.id
     }), 201
 
 
-# ✅ Get all projects (returns full details)
+# ✅ Get all projects
 @project_bp.route('/all', methods=['GET'])
 def get_projects():
     projects = Project.query.all()
     project_list = [{
         'id': p.id,
-        'name': p.name,
-        'description': p.description,
-        'employee_creator': p.employee_creator,
-        'assigned_empids': p.assigned_empids,
-        'update_logs': p.update_logs
+        'project_name': p.project_name,
+        'project_subparts': p.project_subparts,
+        'total_estimate_hrs': p.total_estimate_hrs,
+        'total_elapsed_hrs': p.total_elapsed_hrs,
+        'assigned_ids': p.assigned_ids,
+        'is_completed': p.is_completed,
+        'created_by': p.created_by,
+        'client_id': p.client_id,
+        'created_at': p.created_at,
+        'updated_at': p.updated_at
     } for p in projects]
 
     return jsonify({'projects': project_list, 'total_projects': len(project_list)}), 200
 
 
-# ✅ Get a single project by ID
+# ✅ Get single project by ID
 @project_bp.route('/<int:project_id>', methods=['GET'])
 def get_project(project_id):
     project = Project.query.get(project_id)
-
     if not project:
         return jsonify({'error': 'Project not found'}), 404
 
     return jsonify({
         'id': project.id,
-        'name': project.name,
-        'description': project.description,
-        'employee_creator': project.employee_creator,
-        'assigned_empids': project.assigned_empids,
-        'update_logs': project.update_logs
+        'project_name': project.project_name,
+        'project_subparts': project.project_subparts,
+        'total_estimate_hrs': project.total_estimate_hrs,
+        'total_elapsed_hrs': project.total_elapsed_hrs,
+        'assigned_ids': project.assigned_ids,
+        'is_completed': project.is_completed,
+        'created_by': project.created_by,
+        'client_id': project.client_id,
+        'created_at': project.created_at,
+        'updated_at': project.updated_at
     }), 200
 
 
-# ✅ Update project details (updates update_logs automatically)
+# ✅ Update a project
 @project_bp.route('/update/<int:project_id>', methods=['PUT'])
 def update_project(project_id):
     project = Project.query.get(project_id)
-
     if not project:
         return jsonify({'error': 'Project not found'}), 404
 
     data = request.get_json()
-    updated_by = data.get('updated_by')  # Required for logging updates
 
-    if not updated_by:
-        return jsonify({'error': 'updated_by field is required'}), 400
+    if 'project_name' in data:
+        project.project_name = data['project_name'].strip()
 
-    changes = []
+    if 'project_subparts' in data:
+        if not isinstance(data['project_subparts'], list):
+            return jsonify({'error': 'project_subparts must be an array'}), 400
+        project.project_subparts = data['project_subparts']
 
-    if 'name' in data and data['name'] != project.name:
-        project.name = data['name'].strip()
-        changes.append('Updated name')
+    if 'total_estimate_hrs' in data:
+        project.total_estimate_hrs = data['total_estimate_hrs']
 
-    if 'description' in data and data['description'] != project.description:
-        project.description = data['description'].strip()
-        changes.append('Updated description')
+    if 'total_elapsed_hrs' in data:
+        project.total_elapsed_hrs = data['total_elapsed_hrs']
 
-    if 'assigned_empids' in data and data['assigned_empids'] != project.assigned_empids:
-        if not isinstance(data['assigned_empids'], list):
-            return jsonify({'error': 'assigned_empids must be an array'}), 400
-        project.assigned_empids = data['assigned_empids']
-        changes.append('Updated assigned employees')
+    if 'assigned_ids' in data:
+        if not isinstance(data['assigned_ids'], list):
+            return jsonify({'error': 'assigned_ids must be an array'}), 400
+        project.assigned_ids = data['assigned_ids']
 
-    # ✅ Append changes to update_logs
-    if changes:
-        project.add_update_log(updated_by, ', '.join(changes))
+    if 'is_completed' in data:
+        project.is_completed = data['is_completed']
 
     db.session.commit()
 
-    return jsonify({'message': 'Project updated successfully', 'update_logs': project.update_logs}), 200
+    return jsonify({'message': 'Project updated successfully'}), 200
 
 
 # ✅ Delete a project
 @project_bp.route('/delete/<int:project_id>', methods=['DELETE'])
 def delete_project(project_id):
     project = Project.query.get(project_id)
-
     if not project:
         return jsonify({'error': 'Project not found'}), 404
 
@@ -132,31 +137,27 @@ def delete_project(project_id):
     return jsonify({'message': 'Project deleted successfully'}), 200
 
 
-# ✅ Filter projects with different query parameters
+# ✅ Filter projects (example)
 @project_bp.route('/filter', methods=['GET'])
 def filter_projects():
-    # Get filter parameters from query string
-    employee_creator = request.args.get('employee_creator', type=int)
-    assigned_empid = request.args.get('assigned_empid', type=int)
-    name = request.args.get('name', type=str)
+    created_by = request.args.get('created_by', type=int)
+    assigned_id = request.args.get('assigned_id', type=int)
+    project_name = request.args.get('project_name', type=str)
     start_date = request.args.get('start_date', type=str)
     end_date = request.args.get('end_date', type=str)
-    limit = request.args.get('limit', type=int, default=10)
     offset = request.args.get('offset', type=int, default=0)
 
     query = Project.query
 
-    # Apply filters dynamically
-    if employee_creator:
-        query = query.filter(Project.employee_creator == employee_creator)
+    if created_by:
+        query = query.filter(Project.created_by == created_by)
 
-    if assigned_empid:
-        query = query.filter(cast(Project.assigned_empids, str).like(f'%{assigned_empid}%'))
+    if assigned_id:
+        query = query.filter(cast(Project.assigned_ids, str).like(f'%{assigned_id}%'))
 
-    if name:
-        query = query.filter(Project.name.ilike(f'%{name}%'))  # Case-insensitive search
+    if project_name:
+        query = query.filter(Project.project_name.ilike(f'%{project_name}%'))
 
-    # Handle Date Filters (if Project model has `created_at`)
     if start_date:
         try:
             start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -171,18 +172,22 @@ def filter_projects():
         except ValueError:
             return jsonify({'error': 'Invalid end_date format. Use YYYY-MM-DD'}), 400
 
-    # Apply pagination
     query = query.limit(limit).offset(offset)
 
     projects = query.all()
 
     project_list = [{
         'id': p.id,
-        'name': p.name,
-        'description': p.description,
-        'employee_creator': p.employee_creator,
-        'assigned_empids': p.assigned_empids,
-        'update_logs': p.update_logs
+        'project_name': p.project_name,
+        'project_subparts': p.project_subparts,
+        'total_estimate_hrs': p.total_estimate_hrs,
+        'total_elapsed_hrs': p.total_elapsed_hrs,
+        'assigned_ids': p.assigned_ids,
+        'is_completed': p.is_completed,
+        'created_by': p.created_by,
+        'client_id': p.client_id,
+        'created_at': p.created_at,
+        'updated_at': p.updated_at
     } for p in projects]
 
     return jsonify({'projects': project_list, 'total_projects': len(project_list)}), 200

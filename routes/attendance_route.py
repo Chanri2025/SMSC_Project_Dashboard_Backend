@@ -28,6 +28,55 @@ def create_attendance():
         return jsonify({"message": "Error creating log", "error": str(e)}), 500
 
 
+@attendance_bp.route("/mass-entry", methods=["POST"])
+def mass_attendance_entry():
+    data = request.get_json() or []
+
+    if not isinstance(data, list) or not data:
+        return jsonify({"message": "Request must be a non-empty list of attendance logs"}), 400
+
+    success_logs = []
+    failed_logs = []
+
+    for record in data:
+        required = ["employee_id", "date", "in_time", "out_time"]
+        missing = [f for f in required if not record.get(f)]
+
+        if missing:
+            failed_logs.append({
+                "record": record,
+                "error": f"Missing fields: {', '.join(missing)}"
+            })
+            continue
+
+        try:
+            log = AttendanceLog(
+                employee_id=record["employee_id"],
+                date=record["date"],
+                in_time=record["in_time"],
+                out_time=record["out_time"]
+            )
+            db.session.add(log)
+            success_logs.append(log)
+        except Exception as e:
+            failed_logs.append({
+                "record": record,
+                "error": str(e)
+            })
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Database error during mass insert", "error": str(e)}), 500
+
+    return jsonify({
+        "message": "Mass entry completed",
+        "successful_entries": len(success_logs),
+        "failed_entries": failed_logs
+    }), 200
+
+
 @attendance_bp.route("/all", methods=["GET"])
 def get_attendance():
     logs = AttendanceLog.query.all()

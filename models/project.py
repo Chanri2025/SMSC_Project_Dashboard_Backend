@@ -1,23 +1,23 @@
 from database import db
-from sqlalchemy import Column, Integer, String, JSON, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, JSON, Boolean, BigInteger
 from datetime import datetime
+
 
 class Project(db.Model):
     __tablename__ = "project"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    description = Column(String(500), nullable=False)
-    employee_creator = Column(Integer, ForeignKey('user.id'), nullable=False)
-    assigned_empids = Column(JSON, default=[])
-    update_logs = Column(JSON, default=[])
+    id = Column(BigInteger, primary_key=True)
+    project_name = Column(String(255), nullable=False)
+    project_subparts = Column(JSON, nullable=False, default=[])
+    total_estimate_hrs = Column(Float, default=0)
+    total_elapsed_hrs = Column(Float, default=0)
+    assigned_ids = Column(JSON, nullable=False, default=[])
+    is_completed = Column(Boolean, nullable=False, default=False)
+    created_by = Column(BigInteger, nullable=False)
+    client_id = Column(BigInteger, nullable=False, default=1)
+    created_at = Column(db.DateTime, default=datetime.utcnow)
+    updated_at = Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def add_update_log(self, updated_by, message):
-        """ Append a new update log entry. """
-        if not self.update_logs:
-            self.update_logs = []
-        self.update_logs.append({
-            "updated_by": updated_by,
-            "message": message,
-            "timestamp": datetime.utcnow().isoformat()
-        })
+    def add_update_to_subpart(self, subpart_name, field_updated, updated_value):
+        """ Optionally, you can add helper functions here later for updating subparts """
+        pass
