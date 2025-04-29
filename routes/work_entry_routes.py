@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.work_day_entry import WorkDayEntry
+from sqlalchemy import or_, and_
 from models.project import Project
 from database import db
 from datetime import datetime
@@ -124,42 +125,84 @@ def update_work_entry(entry_id):
 
 
 # ✅ Filter work entries
+
+# ─── 1. CONFIGURE YOUR FILTERABLE FIELDS ──────────────────────────────────────
+# key = query-param name
+# col = the model column
+# type= a function to coerce the string → the right Python type
+# op  = "eq" for == or "ilike" for case-insensitive partial match
+FILTERS = {
+    'user_id':        {'col': WorkDayEntry.user_id,       'type': int,      'op': 'eq'},
+    'assigned_by':    {'col': WorkDayEntry.assigned_by,   'type': int,      'op': 'eq'},
+    'assigned_to':    {'col': WorkDayEntry.assigned_to,   'type': int,      'op': 'eq'},
+    'is_done':        {'col': WorkDayEntry.is_done,       'type': lambda v: v.lower() == 'true', 'op': 'eq'},
+    'project_name':   {'col': WorkDayEntry.project_name,  'type': str,      'op': 'ilike'},
+    'project_subpart':{'col': WorkDayEntry.project_subpart,'type': str,      'op': 'ilike'},
+    'work_date':      {'col': WorkDayEntry.work_date,     'type': lambda v: datetime.strptime(v, '%Y-%m-%d').date(), 'op': 'eq'},
+    # → in future just add, e.g. 'hours_elapsed': {'col': WorkDayEntry.hours_elapsed, 'type': float, 'op': 'eq'}
+}
+
 @work_day_entry_bp.route('/filter', methods=['GET'])
 def filter_work_entries():
-    user_id = request.args.get('user_id', type=int)
-    assigned_by = request.args.get('assigned_by', type=int)
-    assigned_to = request.args.get('assigned_to', type=int)
-    is_done = request.args.get('is_done', type=bool)
-    project_name = request.args.get('project_name', type=str)
+    # ─── 2. PULL OUT YOUR ARGS ────────────────────────────────────────────────
+    args = request.args.to_dict()
 
+    # default AND logic
+    match_any = args.pop('match_any', 'false').lower() == 'true'
+
+    # if both user_id & assigned_to present without explicit match_any, auto-OR them
+    if 'user_id' in args and 'assigned_to' in args and 'match_any' not in request.args:
+        match_any = True
+
+    # ─── 3. BUILD UP CONDITIONS ───────────────────────────────────────────────
+    conditions = []
+    for key, raw in args.items():
+        cfg = FILTERS.get(key)
+        if not cfg or raw == '':
+            continue
+        try:
+            val = cfg['type'](raw)
+        except Exception:
+            # failed to parse, skip
+            continue
+
+        col = cfg['col']
+        if cfg['op'] == 'eq':
+            conditions.append(col == val)
+        elif cfg['op'] == 'ilike':
+            conditions.append(col.ilike(f"%{val}%"))
+
+    # ─── 4. APPLY FILTERS, DISTINCT & SORT ───────────────────────────────────
     query = WorkDayEntry.query
+    if conditions:
+        if match_any:
+            query = query.filter(or_(*conditions))
+        else:
+            query = query.filter(and_(*conditions))
 
-    if user_id:
-        query = query.filter(WorkDayEntry.user_id == user_id)
-    if assigned_by:
-        query = query.filter(WorkDayEntry.assigned_by == assigned_by)
-    if assigned_to:
-        query = query.filter(WorkDayEntry.assigned_to == assigned_to)
-    if is_done is not None:
-        query = query.filter(WorkDayEntry.is_done == is_done)
-    if project_name:
-        query = query.filter(WorkDayEntry.project_name.ilike(f'%{project_name}%'))
+    entries = (
+        query
+        .distinct()
+        .order_by(WorkDayEntry.work_date.desc())
+        .all()
+    )
 
-    entries = query.order_by(WorkDayEntry.work_date.desc()).all()
-
-    result = [{
-        'id': e.id,
-        'user_id': e.user_id,
-        'work_date': e.work_date.strftime('%Y-%m-%d'),
-        'hours_elapsed': e.hours_elapsed,
-        'project_name': e.project_name,
-        'project_subpart': e.project_subpart,
-        'issues': e.issues,
-        'is_done': e.is_done,
-        'assigned_by': e.assigned_by,
-        'assigned_to': e.assigned_to,
-        'created_at': e.created_at,
-        'updated_at': e.updated_at
-    } for e in entries]
+    # ─── 5. SERIALIZE ─────────────────────────────────────────────────────────
+    result = []
+    for e in entries:
+        result.append({
+            'id':               e.id,
+            'user_id':          e.user_id,
+            'work_date':        e.work_date.strftime('%Y-%m-%d'),
+            'hours_elapsed':    e.hours_elapsed,
+            'project_name':     e.project_name,
+            'project_subpart':  e.project_subpart,
+            'issues':           e.issues,
+            'is_done':          e.is_done,
+            'assigned_by':      e.assigned_by,
+            'assigned_to':      e.assigned_to,
+            'created_at':       e.created_at.isoformat(),
+            'updated_at':       e.updated_at.isoformat(),
+        })
 
     return jsonify({'entries': result, 'total_entries': len(result)}), 200
