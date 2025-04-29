@@ -172,7 +172,7 @@ def filter_projects():
         except ValueError:
             return jsonify({'error': 'Invalid end_date format. Use YYYY-MM-DD'}), 400
 
-    query = query.limit(limit).offset(offset)
+    query = query.limit(10).offset(offset)
 
     projects = query.all()
 

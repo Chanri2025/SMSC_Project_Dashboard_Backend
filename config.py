@@ -1,5 +1,6 @@
 class Config:
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://u449273699_ProjectTeam:Smsc%402024@193.203.184.150:3306/u449273699_project_status"
+    # SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root@localhost/smsc_project"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_POOL_SIZE = 10  # Maintain 10 connections in the pool
     SQLALCHEMY_MAX_OVERFLOW = 5  # Allow 5 extra connections if needed
