@@ -8,40 +8,40 @@ project_bp = Blueprint('project', __name__)
 
 
 # ✅ Create a new project
-@project_bp.route('/create', methods=['POST'])
+@project_bp.route("/create", methods=["POST"])
 def create_project():
-    data = request.get_json()
+    data = request.get_json() or {}
+    # require at least these:
+    if not data.get("project_name") or not data.get("created_by"):
+        return jsonify({"error": "Missing project_name or created_by"}), 400
 
-    required_fields = ['project_name', 'created_by']
-    if not all(field in data for field in required_fields):
-        return jsonify({'error': 'Missing required fields (project_name, created_by)'}), 400
+    # validate your arrays
+    subparts = data.get("project_subparts", [])
+    assigned = data.get("assigned_ids", [])
+    if not isinstance(subparts, list) or not isinstance(assigned, list):
+        return jsonify({"error": "project_subparts and assigned_ids must be arrays"}), 400
 
-    project_subparts = data.get('project_subparts', [])
-    assigned_ids = data.get('assigned_ids', [])
-
-    if not isinstance(project_subparts, list):
-        return jsonify({'error': 'project_subparts must be an array'}), 400
-
-    if not isinstance(assigned_ids, list):
-        return jsonify({'error': 'assigned_ids must be an array'}), 400
-
+    # build the model
     new_project = Project(
-        project_name=data['project_name'].strip(),
-        project_subparts=project_subparts,
-        total_estimate_hrs=data.get('total_estimate_hrs', 0),
-        total_elapsed_hrs=data.get('total_elapsed_hrs', 0),
-        assigned_ids=assigned_ids,
-        created_by=data['created_by'],
-        is_completed=data.get('is_completed', False),
-        client_id=data.get('client_id', 1)  # Optional, defaults to 1
+        project_name=data["project_name"].strip(),
+        project_subparts=subparts,
+        total_estimate_hrs=data.get("total_estimate_hrs", 0),
+        total_elapsed_hrs=data.get("total_elapsed_hrs", 0),
+        assigned_ids=assigned,
+        created_by=data["created_by"],
+        is_completed=data.get("is_completed", False),
+        client_id=data.get("client_id", 1),
+        # created_at is auto‐defaulted
     )
 
     db.session.add(new_project)
-    db.session.commit()
+    db.session.flush()  # ← push INSERT & populate new_project.id
+    project_id = new_project.id  # ← now safe to read
+    db.session.commit()  # ← persist transaction
 
     return jsonify({
-        'message': 'Project created successfully',
-        'project_id': new_project.id
+        "message": "Project created successfully",
+        "project_id": project_id
     }), 201
 
 
